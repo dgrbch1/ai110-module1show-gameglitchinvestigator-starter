@@ -25,13 +25,49 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+### Game Purpose
+A number guessing game built with Streamlit where the player tries to guess a secret number within a limited number of attempts. The difficulty setting controls the range of the secret number and the number of attempts allowed.
+
+### Bugs Found
+
+| # | Bug | Location |
+|---|-----|----------|
+| 1 | Hard difficulty range was `1–50`, making it easier than Normal (`1–100`) | `logic_utils.py` / `get_range_for_difficulty` |
+| 2 | Wrong guesses on even-numbered attempts rewarded `+5` points instead of `-5` | `logic_utils.py` / `update_score` |
+| 3 | `check_guess` returned a tuple `("Win", "🎉 Correct!")` but tests expected a plain string `"Win"` — also the hint messages (Go Higher/Go Lower) were swapped | `logic_utils.py` / `check_guess` |
+| 4 | New Game button used `random.randint(1, 100)` instead of the difficulty range | `app.py` |
+| 5 | New Game button only reset `attempts` and `secret` — `status`, `score`, and `history` were not cleared, so the game stayed in a won/lost state and was unplayable | `app.py` |
+
+### Fixes Applied
+
+- Moved all logic functions (`check_guess`, `parse_guess`, `get_range_for_difficulty`, `update_score`) from `app.py` into `logic_utils.py` using Claude Agent mode
+- Fixed Hard difficulty range from `1–50` to `1–1000`
+- Fixed `update_score` so wrong guesses always subtract 5 points
+- Fixed `check_guess` to return a plain string outcome, and corrected the hint messages
+- Fixed New Game button to use `random.randint(low, high)` based on selected difficulty
+- Fixed hint text in the UI to show the actual difficulty range instead of hardcoded `1–100`
+- Fixed `attempts` counter initialization from `1` to `0`
+- Fixed New Game button to also reset `status`, `score`, and `history` so the game is fully playable after a reset
+
+### pytest Results
+
+All 8 tests pass after the fixes:
+
+```
+tests/test_game_logic.py::test_winning_guess PASSED
+tests/test_game_logic.py::test_guess_too_high PASSED
+tests/test_game_logic.py::test_guess_too_low PASSED
+tests/test_game_logic.py::test_hard_range_is_harder_than_normal PASSED
+tests/test_game_logic.py::test_wrong_guess_always_loses_points PASSED
+tests/test_game_logic.py::test_too_low_always_loses_points PASSED
+tests/test_game_logic.py::test_higher_guess_is_too_high PASSED
+tests/test_game_logic.py::test_lower_guess_is_too_low PASSED
+8 passed in 0.02s
+```
 
 ## 📸 Demo
 
-- [ ] [Insert a screenshot of your fixed, winning game here]
+![Winning game screenshot](all.png)
 
 ## 🚀 Stretch Features
 
